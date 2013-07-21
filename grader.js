@@ -65,10 +65,19 @@ if(require.main == module) {
     program
         .option('-c, --checks <check_file>', 'Path to checks.json', clone(assertFileExists), CHECKSFILE_DEFAULT)
         .option('-f, --file <html_file>', 'Path to index.html', clone(assertFileExists), HTMLFILE_DEFAULT)
+        .option('-u, --url <web address>', 'URL to read')
         .parse(process.argv);
-    var checkJson = checkHtmlFile(program.file, program.checks);
+
+    if(program.url){
+	rest.get(program.url).on('complete', function(urlFile){
+	    var checkJson = checkHtmlFile(urlFile, program.checks);
+	});
+    }else if(program.file){
+	var checkJson = checkHtmlFile(program.file, program.checks);
+    }
     var outJson = JSON.stringify(checkJson, null, 4);
     console.log(outJson);
 } else {
     exports.checkHtmlFile = checkHtmlFile;
 }
+
